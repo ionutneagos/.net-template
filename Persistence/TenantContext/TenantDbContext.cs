@@ -1,5 +1,4 @@
 ﻿using Domain.Constants;
-using Domain.Entities.Tenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Common;
@@ -21,14 +20,13 @@ namespace Persistence.TenantContext
             }
         }
 
-        public DbSet<SampleTenant> SamplesTenant { get; set; }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!string.IsNullOrEmpty(tenantConnectionString) && !optionsBuilder.IsConfigured)
+            if (!string.IsNullOrEmpty(tenantConnectionString))
+            {
                 optionsBuilder.UseSqlServer(tenantConnectionString);
-
-            base.OnConfiguring(optionsBuilder);
+                base.OnConfiguring(optionsBuilder);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) =>

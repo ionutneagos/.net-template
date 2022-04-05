@@ -11,7 +11,7 @@ namespace Persistence.CatalogContext
     {
         public static void AddCatalogContext(this IServiceCollection services, IConfiguration configuration)
         {
-            var cs = configuration["Database:ConnectionString"];
+            var cs = configuration["Database:CatalogConnectionString"];
             services.AddDbContext<CatalogDbContext>(options =>
             {
                 options.UseSqlServer(cs, providerOptions =>

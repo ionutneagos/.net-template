@@ -9,6 +9,7 @@ using Services.Abstractions.Shared;
 using Services.Shared;
 using Web.Extensions;
 using Web.Middleware;
+using Web.Utils;
 
 try
 {
@@ -18,7 +19,10 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    builder.Services.AddControllers().AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+    builder.Services.AddControllers(options =>
+    {
+        options.InputFormatters.Insert(0, JsonPatchFormatter.GetJsonPatchInputFormatter());
+    }).AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
     builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -36,14 +40,19 @@ try
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console());
 
     var app = builder.Build();
-    if (app.Environment.IsDevelopment())
+
+    app.MapSwagger();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-
+        if (!app.Environment.IsDevelopment())
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            options.RoutePrefix = string.Empty;
+        }
+    });
+   
     app.UseHttpsRedirection();
-
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<TenantIdentifierMiddleware>();
     app.UseAuthentication();

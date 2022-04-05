@@ -1,12 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Persistence.TenantContext
 {
     internal static class SetupTenantContext
     {
-        public static void AddTenantContext(this IServiceCollection services)
+        public static void AddTenantContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<TenantDbContext>(ServiceLifetime.Scoped);
+            var cs = configuration["Database:TenantConnectionString"];
+            services.AddDbContext<TenantDbContext>(options =>
+            {
+                options.UseSqlServer(cs, providerOptions =>
+                {
+                    providerOptions.EnableRetryOnFailure();
+                });
+            }, ServiceLifetime.Scoped
+            );
         }
     }
 }
