@@ -15,6 +15,8 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.Services.ConfigureAppCors(builder.Configuration);
+
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -22,6 +24,7 @@ try
     builder.Services.AddControllers(options =>
     {
         options.InputFormatters.Insert(0, JsonPatchFormatter.GetJsonPatchInputFormatter());
+
     }).AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
     builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -55,6 +58,12 @@ try
     app.UseHttpsRedirection();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<TenantIdentifierMiddleware>();
+
+    if (ConfigureCors.UseCors)
+    {
+        app.UseCors(ConfigureCors.AppCorsPolicy);
+    }
+
     app.UseAuthentication();
     app.UseAuthorization();
 
