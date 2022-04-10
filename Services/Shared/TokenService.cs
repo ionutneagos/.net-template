@@ -190,7 +190,7 @@ namespace Services.Shared
                     new SymmetricSecurityKey(Encoding.ASCII.GetBytes(serviceManager.Configuration["Authentication:Jwt:Secret"])),
                     SecurityAlgorithms.HmacSha256Signature),
                 IssuedAt = DateTime.Now,
-                TokenType= "Bearer",
+                TokenType = "Bearer",
                 Issuer = serviceManager.Configuration["Authentication:Jwt:Issuer"],
                 Audience = serviceManager.Configuration["Authentication:Jwt:Audience"]
             };

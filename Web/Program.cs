@@ -1,3 +1,5 @@
+using Domain.Constants;
+using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Persistence;
 using Persistence.CatalogContext;
@@ -20,12 +22,15 @@ try
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-
     builder.Services.AddControllers(options =>
     {
         options.InputFormatters.Insert(0, JsonPatchFormatter.GetJsonPatchInputFormatter());
 
-    }).AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+    }).AddOData(options => options.Select().Filter().OrderBy().Expand().Count().SetMaxTop(ApiConfiguration.ODataOptionsMaxTopValue)
+                            .EnableNoDollarQueryOptions = true)
+      .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+
+    builder.Services.RemoveODataFormatters();
 
     builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -54,7 +59,7 @@ try
             options.RoutePrefix = string.Empty;
         }
     });
-   
+
     app.UseHttpsRedirection();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseMiddleware<TenantIdentifierMiddleware>();
@@ -69,13 +74,13 @@ try
 
     app.MapControllers();
 
+
     var scopeFactory = app.Services?.GetService<IServiceScopeFactory>();
     if (scopeFactory != null)
     {
         await scopeFactory.MigrateCatalogDbToLatestVersionAsync();
         await scopeFactory.RunCatalogDataSeederAsync();
     }
-
     await app.RunAsync();
 }
 catch (Exception ex)
@@ -87,3 +92,4 @@ finally
     Log.Information("Shut down complete");
     Log.CloseAndFlush();
 }
+

@@ -1,4 +1,6 @@
-﻿using Domain.Exceptions;
+﻿using Contracts;
+using Domain.Exceptions;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace Web.Middleware
@@ -33,12 +35,14 @@ namespace Web.Middleware
             {
                 BadRequestException => StatusCodes.Status400BadRequest,
                 NotFoundException => StatusCodes.Status404NotFound,
+                ValidationException => StatusCodes.Status500InternalServerError,
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            var response = new
+            var response = new ErrorResponse
             {
-                error = exception.Message
+                Code = httpContext.Response.StatusCode,
+                Message = exception.Message,
             };
 
             await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));

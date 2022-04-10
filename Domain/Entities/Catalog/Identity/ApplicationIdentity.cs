@@ -23,6 +23,6 @@ namespace Domain.Entities.Catalog
     public class ApplicationRole : IdentityRole
     {
         public string CustomTag { get; set; } = string.Empty;
-       
+
     }
 }
