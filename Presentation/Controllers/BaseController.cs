@@ -46,32 +46,30 @@ namespace Presentation.Controllers
             return new PagedResponse<T>(filteredList as IEnumerable<T>, nextPageLink, queryOptions.Request.ODataFeature().TotalCount);
         }
 
-        protected IActionResult ReturnBadRequest(ILogger _logger, Exception e)
+        protected IActionResult ReturnBadRequest(ILogger logger, string model, string message, List<string> errors)
         {
-            _logger.LogError("Get Property Failed " + e);
-            return BadRequest(e.Message);
-        }
-
-        protected IActionResult ReturnBadRequest(IdentityResult result)
-        {
-            var errors = result.Errors.Select(it => it.Description);
-            var response = new
+            var response = new ErrorResponse()
             {
-                Message = string.Join(",", errors),
-                Status = 500,
+                Message = message,
+                Code = StatusCodes.Status400BadRequest,
+                Errors = errors
             };
+
+            logger.LogError($"Bad request. Request: {model}. Errors: \"{response.Message}\"");
+
             return BadRequest(response);
         }
 
-        protected IActionResult EntityNotFound(ILogger logger, string model, string message)
+        protected IActionResult ReturnEntityNotFound(ILogger logger, string model, string message, List<string> errors)
         {
             var response = new ErrorResponse
             {
                 Message = message,
                 Code = StatusCodes.Status404NotFound,
+                Errors = errors
             };
 
-            logger.LogError($"Ëntity not found. Request: {model}. Errors: \"{response.Message}\"");
+            logger.LogError($"Entity not found. Request: {model}. Errors: \"{response.Message}\"");
 
             return NotFound(response);
         }
@@ -82,12 +80,12 @@ namespace Presentation.Controllers
 
             var response = new ErrorResponse
             {
-                Message = "Invalid model request",
+                Message = "Invalid request",
                 Code = StatusCodes.Status400BadRequest,
                 Errors = errors.ToList()
             };
 
-            logger.LogError($"Invalid model request.Request: {model}. Errors: \"{response.Message}\"");
+            logger.LogError($"Invalid model request. Request: {model}. Errors: \"{response.Message}\"");
 
             return BadRequest(response);
         }
