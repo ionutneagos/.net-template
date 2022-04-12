@@ -26,23 +26,24 @@ namespace Web.Middleware
                 await HandleExceptionAsync(context, e);
             }
         }
-
         private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
         {
             httpContext.Response.ContentType = "application/json";
+            var exceptionType = exception.GetType();
 
             httpContext.Response.StatusCode = exception switch
             {
-                BadRequestException => StatusCodes.Status400BadRequest,
-                NotFoundException => StatusCodes.Status404NotFound,
-                ValidationException => StatusCodes.Status500InternalServerError,
-                _ => StatusCodes.Status500InternalServerError
+                var _ when exceptionType == typeof(BadRequestException) => StatusCodes.Status400BadRequest,
+                var _ when exceptionType == typeof(UnauthorizedAccessException) => StatusCodes.Status401Unauthorized,
+                var _ when exceptionType == typeof(NotFoundException) => StatusCodes.Status404NotFound,
+                var _ when exceptionType == typeof(ValidationException) => StatusCodes.Status422UnprocessableEntity,
+                AppException e when exceptionType == typeof(AppException) => e.Code,
+                _ => StatusCodes.Status500InternalServerError,
             };
-
             var response = new ErrorResponse
             {
                 Code = httpContext.Response.StatusCode,
-                Message = exception.Message,
+                Message = exception.Message
             };
 
             await httpContext.Response.WriteAsync(JsonSerializer.Serialize(response));

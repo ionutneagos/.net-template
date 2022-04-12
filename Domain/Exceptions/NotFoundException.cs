@@ -2,6 +2,7 @@
 {
     public sealed class NotFoundException : Exception
     {
+        public int Code { get; } = 500;
         public NotFoundException()
         {
 
