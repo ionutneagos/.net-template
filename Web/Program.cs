@@ -44,7 +44,6 @@ try
     builder.Services.AddScoped<CatalogDataSeeder>();
 
     builder.Services.AddPersistenceContext(builder.Configuration);
-    builder.Services.AddDataProtection();
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console());
 
     var app = builder.Build();

@@ -21,7 +21,10 @@ namespace Persistence.CatalogContext
                 });
             }, ServiceLifetime.Scoped
             );
-            services.AddDataProtection().PersistKeysToDbContext<CatalogDbContext>();
+            services.AddDataProtection().PersistKeysToDbContext<CatalogDbContext>()
+                    .PersistKeysToDbContext<CatalogDbContext>()
+                    .SetApplicationName("netstartup")
+                    .SetDefaultKeyLifetime(TimeSpan.FromDays(180)); 
         }
 
         public static async Task MigrateCatalogDbToLatestVersionAsync(this IServiceScopeFactory scopeFactory)
