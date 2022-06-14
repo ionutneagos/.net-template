@@ -53,6 +53,12 @@ namespace Services
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
 
+        public async Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default)
+        {
+            await repository.CreateRangeAsync(entities, cancellationToken);
+            await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
+        }
+
         public void Update(T entity)
         {
             repository.Update(entity);
@@ -61,6 +67,12 @@ namespace Services
         public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             repository.Update(entity);
+            await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
+        }
+
+        public async Task UpdateRangeAsync(List<T> entities, CancellationToken cancellationToken = default)
+        {
+            repository.UpdateRange(entities);
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
         public void Delete(object id)

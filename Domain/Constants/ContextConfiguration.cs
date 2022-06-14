@@ -4,6 +4,7 @@
     {
         public const string CatalogContextName = "CatalogContext";
         public const string TenantContextName = "TenantContext";
+        public const string TrackingContextName = "TrackingContext";
 
         public const string TenantIdClaim = "TenantIdClaim";
         public const string TenantConnectionString = "TenantConnectionString";

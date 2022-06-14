@@ -35,7 +35,8 @@ namespace Persistence.Common
         {
             IQueryable<T> query = DbSet;
 
-            query = query.Where(filter);
+            if (filter != null)
+                query = query.Where(filter);
 
             foreach (var includeProperty in includeProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -74,12 +75,21 @@ namespace Persistence.Common
             DbSet.Add(entity);
         }
 
+        public virtual async Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default)
+        {
+            await DbSet.AddRangeAsync(entities, cancellationToken);
+        }
+
         public virtual void Update(T entity)
         {
             DbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
         }
 
+        public virtual void UpdateRange(List<T> entities)
+        {
+            DbSet.UpdateRange(entities);
+        }
         public virtual void Delete(object id)
         {
             T entityToDelete = DbSet.Find(id);
@@ -92,7 +102,6 @@ namespace Persistence.Common
         {
             DbSet.RemoveRange(entities);
         }
-
         public virtual void Delete(T entityToDelete)
         {
             if (context.Entry(entityToDelete).State == EntityState.Detached)

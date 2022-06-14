@@ -38,6 +38,7 @@ namespace Services
             InitSharedServices();
             InitCatalogServices();
             InitTenantServices();
+            InitEntityTracking();
         }
 
         private void InitSharedServices()
@@ -48,17 +49,36 @@ namespace Services
         public void Commit(string contextName = null)
         {
             if (string.IsNullOrEmpty(contextName))
-                _contextPool.Values.ToList().ForEach(context => context.Commit(User?.Identity?.Name));
+                _contextPool.Values.ToList().ForEach(context =>
+                {
+                    var trackingTransaction = TrackContext(context);
+                    context.Commit(User?.Identity?.Name);
+                    CommitTrackingTransaction(trackingTransaction);
+                });
             else
-                _contextPool[contextName].Commit(User?.Identity?.Name);
+            {
+                var context = _contextPool[contextName];
+                var trackingTransaction = TrackContext(context);
+                context.Commit(User?.Identity?.Name);
+                CommitTrackingTransaction(trackingTransaction);
+            }
         }
-
         public async Task CommitAsync(string contextName = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(contextName))
-                _contextPool.Values.ToList().ForEach(async context => await context.CommitAsync(User?.Identity?.Name, cancellationToken));
+                _contextPool.Values.ToList().ForEach(async context =>
+                {
+                    var trackingTransaction = TrackContext(context);
+                    await context.CommitAsync(User?.Identity?.Name, cancellationToken);
+                    await CommitTrackingTransactionAsync(trackingTransaction, cancellationToken);
+                });
             else
-                await _contextPool[contextName].CommitAsync(User?.Identity?.Name, cancellationToken);
+            {
+                var context = _contextPool[contextName];
+                var trackingTransaction = TrackContext(context);
+                await context.CommitAsync(User?.Identity?.Name, cancellationToken);
+                await CommitTrackingTransactionAsync(trackingTransaction, cancellationToken);
+            }
         }
 
         #region Logger 

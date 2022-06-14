@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Persistence;
 using Persistence.CatalogContext;
 using Persistence.CatalogContext.CatalogSeed;
+using Polly;
+using Polly.Extensions.Http;
 using Serilog;
 using Services;
 using Services.Abstractions;
@@ -16,21 +18,28 @@ using Web.Utils;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-
+    //register azure key vault as top dependency
+    builder.AddAzureKeyVault();
     builder.Services.ConfigureAppCors(builder.Configuration);
 
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.AddBearerSecurityDefinition();
+        c.OperationFilter<SwaggerDefaultValues>();
+    });
+
     builder.Services.AddControllers(options =>
     {
         options.InputFormatters.Insert(0, JsonPatchFormatter.GetJsonPatchInputFormatter());
 
     }).AddOData(options => options.Select().Filter().OrderBy().Expand().Count().SetMaxTop(ApiConfiguration.ODataOptionsMaxTopValue)
                             .EnableNoDollarQueryOptions = true)
-      .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+     .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
     builder.Services.RemoveODataFormatters();
+
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
     builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     builder.Services.AddTransient<ExceptionHandlingMiddleware>();
@@ -40,12 +49,15 @@ try
 
     builder.Services.AddScoped(typeof(ITokenService), typeof(TokenService));
     builder.Services.AddScoped(typeof(IServiceManager), typeof(ServiceManager));
+    builder.Services.AddHttpClient(Microsoft.Extensions.Options.Options.DefaultName, client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(15);
+    }).AddPolicyHandler(GetRetryPolicy());
+
     builder.Services.AddAppIdentity(builder.Configuration);
-    builder.Services.AddScoped<CatalogDataSeeder>();
+    builder.AddAppPersistence();
 
-    builder.Services.AddPersistenceContext(builder.Configuration);
     builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console());
-
     var app = builder.Build();
 
     app.MapSwagger();
@@ -73,13 +85,8 @@ try
 
     app.MapControllers();
 
+    await app.InitAppDataAsync();
 
-    var scopeFactory = app.Services?.GetService<IServiceScopeFactory>();
-    if (scopeFactory != null)
-    {
-        await scopeFactory.MigrateCatalogDbToLatestVersionAsync();
-        await scopeFactory.RunCatalogDataSeederAsync();
-    }
     await app.RunAsync();
 }
 catch (Exception ex)
@@ -92,3 +99,9 @@ finally
     Log.CloseAndFlush();
 }
 
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions.HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+        .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+}

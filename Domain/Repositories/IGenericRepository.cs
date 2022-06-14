@@ -15,7 +15,13 @@ namespace Domain.Repositories
         Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default);
 
         void Create(T entity);
+
+        Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default);
+
         void Update(T entity);
+
+        void UpdateRange(List<T> entities);
+
         void Delete(object id);
         void Delete(T entity);
 

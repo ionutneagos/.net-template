@@ -15,10 +15,14 @@ namespace Services.Abstractions
 
         void Add(T entity);
         void Create(T entity);
+        Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default);
+
         Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
         void Update(T entity);
         Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
+
+        Task UpdateRangeAsync(List<T> entities, CancellationToken cancellationToken = default);
 
         void Delete(object id);
         Task DeleteAsync(object id, CancellationToken cancellationToken = default);
