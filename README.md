@@ -70,7 +70,7 @@ Set Web project as startup project
 Update appsettings.json file Database ConnectionString value accordingly.
 ``` 
 "Database": {
-    "ConnectionString": "Server={SQL SERVER};User ID=={sql user};Password={sql password};Initial Catalog=AppCatalog;Persist Security Info=True; MultipleActiveResultSets=True;"
+    "ConnectionString": "Server={SQL SERVER};User ID=={sql user};Password={sql password};Initial Catalog={Catalog Database};Persist Security Info=True; MultipleActiveResultSets=True;"
 ```
 *A nugget package is used for automatic migration*
 
