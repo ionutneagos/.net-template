@@ -1,5 +1,4 @@
-﻿using Domain.Exceptions;
-using Domain.Repositories;
+﻿using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -61,7 +60,7 @@ namespace Persistence.Common
 
         public virtual async Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default)
         {
-           return await DbSet.FindAsync(values, cancellationToken);
+            return await DbSet.FindAsync(values, cancellationToken);
         }
 
         public virtual void Create(T entity)

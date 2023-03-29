@@ -1,7 +1,4 @@
 ﻿using Contracts;
-using Contracts.Catalog;
-using Contracts.Catalog.AppTenant.Request;
-using Contracts.Catalog.AppTenant.Response;
 using Contracts.Catalog.AppUser.Response;
 using Contracts.Catalog.Request;
 using Domain.Constants;
@@ -10,15 +7,11 @@ using Domain.Extensions;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Services.Abstractions;
-using Services.Abstractions.Shared;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace Presentation.Controllers.v1
@@ -48,15 +41,16 @@ namespace Presentation.Controllers.v1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetAll([FromQuery] SearchRequest request)
         {
-            var query = serviceManager.AppUserService.GetAll()
-                        .Include(t=>t.Tenant)
-                        .Select(t => new UserResponse { 
-                            Id = t.Id,  
-                            Email= t.Email,
+            IQueryable<UserResponse> query = serviceManager.AppUserService.GetAll()
+                        .Include(t => t.Tenant)
+                        .Select(t => new UserResponse
+                        {
+                            Id = t.Id,
+                            Email = t.Email,
                             FirstName = t.FirstName,
                             LastName = t.LastName,
                             TenantId = t.TenantId,
-                            TenantName = t.Tenant!=null ? t.Tenant.Name:"",
+                            TenantName = t.Tenant != null ? t.Tenant.Name : "",
                             CreatedDate = t.CreatedDate,
                             CustomTag = t.CustomTag,
                             PhoneNumber = t.PhoneNumber,
@@ -73,7 +67,7 @@ namespace Presentation.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string id)
         {
-            var result = await userManager.FindByIdAsync(id);
+            ApplicationUser? result = await userManager.FindByIdAsync(id);
             if (result == null)
                 return NotFound();
             return Ok(result.Adapt<UserResponse>());
@@ -90,16 +84,16 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
-            
+            ApplicationUser user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
+
             user.TenantId = User.GetTenantFromClaim();
-            
-            var result = await userManager.CreateAsync(user);
-         
+
+            IdentityResult result = await userManager.CreateAsync(user);
+
             if (!result.Succeeded)
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "User could not be added", result.Errors.Select(t => t.Description).ToList());
 
-            var response = user.Adapt<UserResponse>();
+            UserResponse response = user.Adapt<UserResponse>();
             return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
 
@@ -112,17 +106,17 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
+            ApplicationUser user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
             user.TenantId = User.GetTenantFromClaim();
 
             IdentityResult result = new();
-            
+
             result = await userManager.CreateAsync(user, request.Password);
-           
+
             if (!result.Succeeded)
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "User could not be added", result.Errors.Select(t => t.Description).ToList());
 
-            var response = user.Adapt<UserResponse>();
+            UserResponse response = user.Adapt<UserResponse>();
             return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
         #endregion
@@ -138,7 +132,7 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
+            ApplicationUser user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
 
             IdentityResult result = new();
 
@@ -148,7 +142,7 @@ namespace Presentation.Controllers.v1
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "Tenant role could not be added", result.Errors.Select(t => t.Description).ToList());
 
             result = await userManager.CreateAsync(user);
-            
+
             if (!result.Succeeded)
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "User could not be added", result.Errors.Select(t => t.Description).ToList());
 
@@ -157,7 +151,7 @@ namespace Presentation.Controllers.v1
             if (!result.Succeeded)
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "User could not be added to tenant role", result.Errors.Select(t => t.Description).ToList());
 
-            var response = user.Adapt<UserResponse>();
+            UserResponse response = user.Adapt<UserResponse>();
             return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
 
@@ -171,7 +165,7 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
+            ApplicationUser user = request.Adapt<ApplicationUser>(serviceManager.MappingService.GetAppUserMappings());
 
             IdentityResult result = new();
 
@@ -190,7 +184,7 @@ namespace Presentation.Controllers.v1
             if (!result.Succeeded)
                 return ReturnBadRequest(logger, JsonSerializer.Serialize(request), "User could not be added to tenant role", result.Errors.Select(t => t.Description).ToList());
 
-            var response = user.Adapt<UserResponse>();
+            UserResponse response = user.Adapt<UserResponse>();
             return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
         #endregion
@@ -198,7 +192,7 @@ namespace Presentation.Controllers.v1
         #region Private Methods
         private async Task<IdentityResult> EnsureTenantRoleExistAsync()
         {
-            return  await EnsureRoleExistAsync(new ApplicationRole
+            return await EnsureRoleExistAsync(new ApplicationRole
             {
                 Name = IdentityConfiguration.TenantRole,
                 Id = IdentityConfiguration.TenantRoleId,
@@ -208,9 +202,9 @@ namespace Presentation.Controllers.v1
 
         private async Task<IdentityResult> EnsureRoleExistAsync(ApplicationRole applicationRole)
         {
-            var role = await roleManager.FindByNameAsync(roleName: applicationRole.Name);
+            ApplicationRole? role = await roleManager.FindByNameAsync(roleName: applicationRole.Name);
             if (role == null)
-               return await roleManager.CreateAsync(applicationRole);
+                return await roleManager.CreateAsync(applicationRole);
 
             return IdentityResult.Success;
         }

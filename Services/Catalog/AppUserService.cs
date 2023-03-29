@@ -21,7 +21,7 @@ namespace Services.Catalog
                 return base.GetAll();
             else
             {
-                var tenantId = serviceManager.User.GetTenantFromClaim();
+                int? tenantId = serviceManager.User.GetTenantFromClaim();
                 return base.GetAll().Where(t => t.TenantId == tenantId).Include(t => t.Tenant);
             }
         }

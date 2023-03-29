@@ -7,7 +7,10 @@ namespace Services.Shared
     public class MappingService : IMappingService
     {
         private TypeAdapterConfig appUserMappings;
-        public TypeAdapterConfig GetAppUserMappings() => appUserMappings;
+        public TypeAdapterConfig GetAppUserMappings()
+        {
+            return appUserMappings;
+        }
 
         public MappingService()
         {
@@ -19,7 +22,7 @@ namespace Services.Shared
             appUserMappings = new TypeAdapterConfig();
             appUserMappings.NewConfig<CreateUserRequest, ApplicationUser>()
                .Map(dest => dest.UserName, src => src.Email)
-               .Map(dest=> dest.CreatedDate, src => DateTime.UtcNow );
+               .Map(dest => dest.CreatedDate, src => DateTime.UtcNow);
         }
     }
 }

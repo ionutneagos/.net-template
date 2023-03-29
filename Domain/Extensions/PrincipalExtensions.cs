@@ -11,7 +11,7 @@ namespace Domain.Extensions
             return ClaimsOfType(user, ClaimTypes.Role);
         }
 
-       
+
         public static IEnumerable<string?> ClaimsOfType(this IPrincipal user, string claimType)
         {
             if (user.Identity is not ClaimsIdentity) return Array.Empty<string?>();
@@ -28,7 +28,7 @@ namespace Domain.Extensions
 
         public static int? GetTenantFromClaim(this IPrincipal user)
         {
-            var tenantId = ClaimOfType(user, ContextConfiguration.TenantIdClaim);
+            string? tenantId = ClaimOfType(user, ContextConfiguration.TenantIdClaim);
             if (string.IsNullOrWhiteSpace(tenantId))
                 return null;
             else

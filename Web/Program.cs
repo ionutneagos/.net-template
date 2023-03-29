@@ -67,7 +67,7 @@ try
     builder.Services.ConfigureRateLimit(builder.Configuration);
 
     builder.Services.AddAppIdentity(builder.Configuration);
-   
+
     builder.AddAppPersistence();
 
     builder.Services.ConfigureApiVersioning(builder.Configuration);
@@ -93,7 +93,7 @@ try
     }
 
     app.UseHttpsRedirection();
-   
+
 
     if (ConfigureCors.UseCors)
     {

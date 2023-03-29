@@ -19,13 +19,13 @@ namespace Contracts.Catalog.Request
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(60, ErrorMessage = "Password can't be longer than 60 characters")]
         public string Password { get; set; } = string.Empty;
-      
+
         [Required(ErrorMessage = "Confirmation Password is required.")]
         [Compare("Password", ErrorMessage = "Password and Confirmation Password must match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
-    public class CreateAdminUserRequest: CreateUserRequest
+    public class CreateAdminUserRequest : CreateUserRequest
     {
         [Required]
         public int TenantId { get; set; }

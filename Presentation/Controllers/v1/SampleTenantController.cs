@@ -47,7 +47,7 @@ namespace Presentation.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(Guid id)
         {
-            var result = await serviceManager.SampleTenantService.GetByIdAsync(id);
+            SampleTenant result = await serviceManager.SampleTenantService.GetByIdAsync(id);
             if (result == null)
                 return NotFound();
             return Ok(result.Adapt<SampleDto>());
@@ -62,7 +62,7 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var entity = request.Adapt<SampleTenant>();
+            SampleTenant entity = request.Adapt<SampleTenant>();
             await serviceManager.SampleTenantService.CreateAsync(entity, cancellationToken);
             return CreatedAtAction(nameof(Get), new { id = entity.Id }, entity);
         }
@@ -75,7 +75,7 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            var item = await serviceManager.SampleTenantService.GetByIdAsync(id) ?? throw new NotFoundException("Entity not found");
+            SampleTenant item = await serviceManager.SampleTenantService.GetByIdAsync(id) ?? throw new NotFoundException("Entity not found");
 
             item = request.Adapt<SampleTenant>();
 

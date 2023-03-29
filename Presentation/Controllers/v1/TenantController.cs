@@ -42,7 +42,7 @@ namespace Presentation.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(int id)
         {
-            var result = await serviceManager.AppTenantService.GetByIdAsync(id);
+            Domain.Entities.Catalog.AppTenant result = await serviceManager.AppTenantService.GetByIdAsync(id);
             if (result == null)
                 return NotFound();
 
