@@ -23,7 +23,7 @@ Using dependency inversion throughout the project, depending on abstractions (in
 * Exceptions
 * Domain services
 
- <em>These is what I defined in the Domain layer. You can be more or less strict, depending on our needs. </em>
+ <em>These is what I defined in the Domain layer. You can be more or less strict, depending by needs. </em>
  
  The entities defined in the Domain layer are going to capture the information that is important for describing the problem domain. 
  
@@ -66,6 +66,7 @@ TBD
 #### How to run
 
 Set Web project as startup project
+
 Update appsettings.json file Database ConnectionString value accordingly.
 ``` 
 "Database": {
