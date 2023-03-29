@@ -13,5 +13,7 @@
         public const string TenantRole = "tenant-admin";
         public const string TenantRoleId = "tenant-admin-id";
         public const string TenantRoleTag = "default-tenant-admin";
+
+        public const string TenantPolicyRights = "TenantPolicyRights";
     }
 }

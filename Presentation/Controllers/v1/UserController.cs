@@ -42,7 +42,6 @@ namespace Presentation.Controllers.v1
         public IActionResult GetAll([FromQuery] SearchRequest request)
         {
             IQueryable<UserResponse> query = serviceManager.AppUserService.GetAll()
-                        .Include(t => t.Tenant)
                         .Select(t => new UserResponse
                         {
                             Id = t.Id,

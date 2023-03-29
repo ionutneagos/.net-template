@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Contracts.Catalog.AppTenant.Request;
 using Contracts.Catalog.AppTenant.Response;
+using Domain.Constants;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +14,7 @@ namespace Presentation.Controllers.v1
     [ApiVersion("1.0")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
-    [Authorize(Roles = "root")]
+    [Authorize(Roles = IdentityConfiguration.RootRole)]
     public class TenantController : BaseController
     {
         private readonly IServiceManager serviceManager;

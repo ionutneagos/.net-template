@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Contracts.Catalog;
+using Domain.Constants;
 using Domain.Entities.Tenant;
 using Domain.Exceptions;
 using Mapster;
@@ -13,12 +14,12 @@ using System.Text.Json;
 namespace Presentation.Controllers.v1
 {
     /// <summary>
-    /// 
+    ///  Only tenants and user of tenants has permission to use this api. Other roles are not allowed
     /// </summary>
     [ApiVersion("1.0")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
-    [Authorize]
+    [Authorize(Policy =IdentityConfiguration.TenantPolicyRights)]
     public class SampleTenantController : BaseController
     {
         private readonly IServiceManager serviceManager;

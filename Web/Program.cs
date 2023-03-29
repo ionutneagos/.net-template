@@ -14,6 +14,8 @@ using Utilities.Formatters;
 using Utilities.Swagger;
 using Web.Extensions;
 using Web.Middlewares;
+using Web.Providers;
+
 try
 {
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -72,6 +74,11 @@ try
 
     builder.Services.ConfigureApiVersioning(builder.Configuration);
 
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(IdentityConfiguration.TenantPolicyRights, 
+              policy => policy.AddRequirements(new TenantAccessRequirement()));
+    });
 
     WebApplication app = builder.Build();
 
