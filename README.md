@@ -29,7 +29,8 @@ Using dependency inversion throughout the project, depending on abstractions (in
  
  The entities defined in the Domain layer are going to capture the information that is important for describing the problem domain. 
  
- Isn’t an anemic domain model a bad thing? It depends. If you have very complex business logic, it would make sense to encapsulate it inside of  domain entities. But for most applications, it is usually easier to start with a simpler domain model, and only introduce complexity if it is required by the project.
+ **<em>Isn’t an anemic domain model a bad thing?</em>** 
+ It depends. If you have very complex business logic, it would make sense to encapsulate it inside of  domain entities. But for most applications, it is usually easier to start with a simpler domain model, and only introduce complexity if it is required by the project.
 
 
 ## Service Layer
