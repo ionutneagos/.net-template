@@ -45,7 +45,7 @@ The Service layer is right above the Domain layer, this means that it has a refe
 
 The Infrastructure layer should be concerned with encapsulating anything related to external systems or services that the application is interacting with. 
 
-All the implementation details are hiden in the Infrastructure layer because it is at the top of the Onion architecture, while all of the lower layers depend on the interfaces (abstractions).
+All the implementation details are hidden in the Infrastructure layer because it is at the top of the Onion architecture, while all of the lower layers depend on the interfaces (abstractions).
 
 
 ## Presentation Layer
