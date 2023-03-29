@@ -12,6 +12,8 @@ Conceptually, we can consider that the Infrastructure and Presentation layers ar
 * Infrastructure Layer
 * Presentation Layer
 
+![alt text](https://github.com/ionutneagos/assets/blob/main/onion_architecture.jpeg)
+
 ## Advantages of the Onion Architecture
 All of the layers interact with each other strictly through the interfaces defined in the layers below. The flow of dependencies is towards the core of the Onion.
 
