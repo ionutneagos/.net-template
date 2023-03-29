@@ -62,9 +62,9 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            SampleTenant entity = request.Adapt<SampleTenant>();
-            await serviceManager.SampleTenantService.CreateAsync(entity, cancellationToken);
-            return CreatedAtAction(nameof(Get), new { id = entity.Id }, entity);
+            var item = request.Adapt<SampleTenant>();
+            await serviceManager.SampleTenantService.CreateAsync(item, cancellationToken);
+            return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
         }
 
         [HttpPut("{id:guid}")]
@@ -75,7 +75,7 @@ namespace Presentation.Controllers.v1
             if (!ModelState.IsValid)
                 return ReturnInvalidRequest(ModelState, logger, JsonSerializer.Serialize(request));
 
-            SampleTenant item = await serviceManager.SampleTenantService.GetByIdAsync(id) ?? throw new NotFoundException("Entity not found");
+            var item = await serviceManager.SampleTenantService.GetByIdAsync(id) ?? throw new NotFoundException("Entity not found");
 
             item = request.Adapt<SampleTenant>();
 
