@@ -17,6 +17,7 @@ namespace Utilities.Extensions
         {
             _ = bool.TryParse(configuration["RateLimiter:RateLimitGlobalFixedWindow:UseRateLimitGlobalFixedWindow"], out bool useRateLimitGlobalFixedWindow);
             _ = bool.TryParse(configuration["RateLimiter:RateLimitUserBasedTokenBucket:UseUserBasedPolicy"], out bool useUserBasedPolicy);
+          
             if (!useUserBasedPolicy)
                 _ = bool.TryParse(configuration["RateLimiter:RateLimitUserBasedSlidingWindow:UseUserBasedPolicy"], out useUserBasedPolicy);
 
@@ -27,7 +28,7 @@ namespace Utilities.Extensions
 
             services.AddRateLimiter(config =>
             {
-                RateLimitingSettings rateLimitingSettings = new RateLimitingSettings();
+                RateLimitingSettings rateLimitingSettings = new();
 
                 // User Based Policy
                 if (useUserBasedPolicy)
