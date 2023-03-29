@@ -1,7 +1,6 @@
 ﻿using Contracts;
 using Domain.Constants;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.OData.Extensions;
@@ -12,7 +11,8 @@ using Microsoft.OData.UriParser;
 
 namespace Presentation.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public abstract class BaseController : ControllerBase
     {
         protected BaseController()
@@ -22,11 +22,11 @@ namespace Presentation.Controllers
         #region Return Methods
         protected PagedResponse<T> GetSearchResult<T>(HttpRequest request, IQueryable queryable) where T : class
         {
-            var modelBuilder = new ODataConventionModelBuilder();
+            ODataConventionModelBuilder modelBuilder = new();
             modelBuilder.AddEntityType(typeof(T));
-            var edmModel = modelBuilder.GetEdmModel();
+            Microsoft.OData.Edm.IEdmModel edmModel = modelBuilder.GetEdmModel();
 
-            var queryOptions = new ODataQueryOptions<T>(new ODataQueryContext(edmModel, typeof(T), new ODataPath()), request);
+            ODataQueryOptions<T> queryOptions = new(new ODataQueryContext(edmModel, typeof(T), new ODataPath()), request);
 
             ODataQuerySettings settings = new()
             {
@@ -37,7 +37,7 @@ namespace Presentation.Controllers
 
             Uri? nextPageLink = queryOptions.Request.ODataFeature().NextLink;
 
-            var skip = queryOptions.Skip?.Value;
+            int? skip = queryOptions.Skip?.Value;
             skip ??= 0;
 
             if (skip + settings.PageSize < queryOptions.Request.ODataFeature().TotalCount)
@@ -48,7 +48,7 @@ namespace Presentation.Controllers
 
         protected IActionResult ReturnBadRequest(ILogger logger, string model, string message, List<string> errors)
         {
-            var response = new ErrorResponse()
+            ErrorResponse response = new ErrorResponse()
             {
                 Message = message,
                 Code = StatusCodes.Status400BadRequest,
@@ -62,7 +62,7 @@ namespace Presentation.Controllers
 
         protected IActionResult ReturnEntityNotFound(ILogger logger, string model, string message, List<string> errors)
         {
-            var response = new ErrorResponse
+            ErrorResponse response = new ErrorResponse
             {
                 Message = message,
                 Code = StatusCodes.Status404NotFound,
@@ -76,9 +76,9 @@ namespace Presentation.Controllers
 
         protected IActionResult ReturnInvalidRequest(ModelStateDictionary modelState, ILogger logger, string model)
         {
-            var errors = modelState.Values.SelectMany(it => it.Errors).Select(it => it.ErrorMessage);
+            IEnumerable<string> errors = modelState.Values.SelectMany(it => it.Errors).Select(it => it.ErrorMessage);
 
-            var response = new ErrorResponse
+            ErrorResponse response = new ErrorResponse
             {
                 Message = "Invalid request",
                 Code = StatusCodes.Status400BadRequest,

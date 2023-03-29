@@ -11,49 +11,49 @@ namespace Services
         {
         }
 
-        public IQueryable<T> GetAll()
+        public virtual IQueryable<T> GetAll()
         {
             return repository.GetAll();
         }
-        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        public virtual IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
         {
             return repository.FindByCondition(expression);
         }
 
-        public async Task<IEnumerable<T>> Get(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        public virtual async Task<IEnumerable<T>> Get(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "", CancellationToken cancellationToken = default)
         {
-            return await repository.Get(filter, orderBy, includeProperties, cancellationToken);
+            return await repository.GetAsync(filter, orderBy, includeProperties, cancellationToken);
         }
 
-        public async Task<T> GetByIdAsync(object id)
+        public virtual async Task<T> GetByIdAsync(object id)
         {
             return await repository.GetByIdAsync(id);
         }
 
-        public async Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default)
+        public virtual async Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default)
         {
             return await repository.GetByIdAsync(values, cancellationToken);
         }
 
-        public void Add(T entity)
+        public virtual void Add(T entity)
         {
             repository.Create(entity);
         }
 
-        public void Create(T entity)
+        public virtual void Create(T entity)
         {
             repository.Create(entity);
             serviceManager.Commit(repository.Context.ContextName);
         }
 
-        public async Task CreateAsync(T entity, CancellationToken cancellationToken = default)
+        public virtual async Task CreateAsync(T entity, CancellationToken cancellationToken = default)
         {
             repository.Create(entity);
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
 
-        public async Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default)
+        public virtual async Task CreateRangeAsync(List<T> entities, CancellationToken cancellationToken = default)
         {
             await repository.CreateRangeAsync(entities, cancellationToken);
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
@@ -85,18 +85,18 @@ namespace Services
             repository.Delete(id);
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
-        public void Delete(T entityToDelete)
+        public virtual void Delete(T entityToDelete)
         {
             repository.Delete(entityToDelete);
             serviceManager.Commit(repository.Context.ContextName);
         }
-        public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+        public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             repository.Delete(entity);
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
 
-        public void DeleteRange(List<T> entities)
+        public virtual void DeleteRange(List<T> entities)
         {
             repository.DeleteRange(entities);
             serviceManager.Commit(repository.Context.ContextName);
@@ -108,7 +108,7 @@ namespace Services
             await serviceManager.CommitAsync(repository.Context.ContextName, cancellationToken);
         }
 
-        public void RemoveRange(List<T> entities)
+        public virtual void RemoveRange(List<T> entities)
         {
             repository.DeleteRange(entities);
         }

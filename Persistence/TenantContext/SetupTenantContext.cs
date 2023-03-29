@@ -8,7 +8,7 @@ namespace Persistence.TenantContext
     {
         public static void AddTenantContext(this IServiceCollection services, IConfiguration configuration)
         {
-            var cs = configuration["Database:TenantConnectionString"];
+            string? cs = configuration["Database:TenantConnectionString"];
             services.AddDbContext<TenantDbContext>(options =>
             {
                 options.UseSqlServer(cs, providerOptions =>

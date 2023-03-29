@@ -1,7 +1,11 @@
-﻿using Domain.Constants;
+﻿using Domain.Common;
+using Domain.Constants;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Common;
+using Persistence.TenantContext.Configurations;
+using System.Reflection;
 
 #nullable disable
 namespace Persistence.TenantContext
@@ -25,13 +29,16 @@ namespace Persistence.TenantContext
             if (!string.IsNullOrEmpty(tenantConnectionString))
             {
                 optionsBuilder.UseSqlServer(tenantConnectionString);
-                base.OnConfiguring(optionsBuilder);
+                
+                if (!optionsBuilder.IsConfigured)
+                    base.OnConfiguring(optionsBuilder);
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) =>
-           modelBuilder.ApplyConfigurationsFromAssembly(typeof(TenantDbContext).Assembly,
-               x => x.Name == nameof(TenantDbContext));
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new SampleTenantConfiguration());
+        }
 
         public void Commit(dynamic userId)
         {

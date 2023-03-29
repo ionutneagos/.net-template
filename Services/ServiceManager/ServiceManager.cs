@@ -1,12 +1,10 @@
 ﻿using Domain.Repositories;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Services.Abstractions;
-using Services.Abstractions.Shared;
-using Services.Shared;
 using System.Security.Principal;
 
 #nullable disable
@@ -14,26 +12,29 @@ namespace Services
 {
     public partial class ServiceManager : IServiceManager
     {
-        public IConfiguration Configuration { get; }
-        public IPrincipal User => _httpContextAccessor.HttpContext?.User;
-        public IDataEncryptionService DataEncryptionService => _lazyDataEncryptionService.Value;
-
-
+        #region Protected Properties
         internal readonly Dictionary<string, IRepositoryContext> _contextPool = new();
         internal readonly IHttpContextAccessor _httpContextAccessor;
-
-        private readonly IServiceProvider _serviceProvider;
-        private Lazy<IDataEncryptionService> _lazyDataEncryptionService;
-        private readonly Lazy<ILoggerFactory> _lazyLoggerFactory;
+        internal readonly IServiceProvider _serviceProvider;
+        internal readonly Lazy<ILoggerFactory> _lazyLoggerFactory;
         private ILogger ServiceLogger;
+        #endregion
 
-        public ServiceManager(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor,
-             ILoggerFactory loggerFactory, IConfiguration configuration)
+        #region Properties
+        public IConfiguration Configuration { get; }
+        public IPrincipal User => _httpContextAccessor.HttpContext?.User;
+        public string EnvironmentName => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        public IMemoryCache MemoryCache { get; }
+        #endregion
+
+        public ServiceManager(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor, ILoggerFactory loggerFactory, IMemoryCache memoryCache, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
-            _lazyLoggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
             Configuration = configuration;
+            MemoryCache = memoryCache;
+
+            _lazyLoggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
 
             InitSharedServices();
             InitCatalogServices();
@@ -41,24 +42,20 @@ namespace Services
             InitEntityTracking();
         }
 
-        private void InitSharedServices()
-        {
-            _lazyDataEncryptionService = new Lazy<IDataEncryptionService>(() => new DataEncryptionService(_serviceProvider.GetDataProtectionProvider()));
-        }
-
+        #region Commit
         public void Commit(string contextName = null)
         {
             if (string.IsNullOrEmpty(contextName))
                 _contextPool.Values.ToList().ForEach(context =>
                 {
-                    var trackingTransaction = TrackContext(context);
+                    Tracking.EntityTrackingTransaction trackingTransaction = TrackContext(context);
                     context.Commit(User?.Identity?.Name);
                     CommitTrackingTransaction(trackingTransaction);
                 });
             else
             {
-                var context = _contextPool[contextName];
-                var trackingTransaction = TrackContext(context);
+                IRepositoryContext context = _contextPool[contextName];
+                Tracking.EntityTrackingTransaction trackingTransaction = TrackContext(context);
                 context.Commit(User?.Identity?.Name);
                 CommitTrackingTransaction(trackingTransaction);
             }
@@ -68,18 +65,19 @@ namespace Services
             if (string.IsNullOrEmpty(contextName))
                 _contextPool.Values.ToList().ForEach(async context =>
                 {
-                    var trackingTransaction = TrackContext(context);
+                    Tracking.EntityTrackingTransaction trackingTransaction = TrackContext(context);
                     await context.CommitAsync(User?.Identity?.Name, cancellationToken);
                     await CommitTrackingTransactionAsync(trackingTransaction, cancellationToken);
                 });
             else
             {
-                var context = _contextPool[contextName];
-                var trackingTransaction = TrackContext(context);
+                IRepositoryContext context = _contextPool[contextName];
+                Tracking.EntityTrackingTransaction trackingTransaction = TrackContext(context);
                 await context.CommitAsync(User?.Identity?.Name, cancellationToken);
                 await CommitTrackingTransactionAsync(trackingTransaction, cancellationToken);
             }
         }
+        #endregion
 
         #region Logger 
         public void Log<T>(LogLevel level, string message, params object[] args)
@@ -112,7 +110,7 @@ namespace Services
         #region Protected Methods
         protected IGenericRepository<T> RepositoryResolver<T>(string contextName) where T : class
         {
-            var repository = _serviceProvider.GetServices<IGenericRepository<T>>()
+            IGenericRepository<T> repository = _serviceProvider.GetServices<IGenericRepository<T>>()
                 .FirstOrDefault(x => x.Context.ContextName == contextName);
 
             if (repository != null)
@@ -134,7 +132,7 @@ namespace Services
             {
                 if (disposing)
                 {
-                    foreach (var context in _contextPool.Values)
+                    foreach (IRepositoryContext context in _contextPool.Values)
                     {
                         if (context != null)
                             context.Dispose();

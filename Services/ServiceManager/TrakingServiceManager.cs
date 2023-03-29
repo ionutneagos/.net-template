@@ -14,12 +14,12 @@ namespace Services
         {
             try
             {
-                var trackingContextName = ContextConfiguration.TrackingContextName;
+                string trackingContextName = ContextConfiguration.TrackingContextName;
 
                 if (!_contextPool.ContainsKey(trackingContextName))
                     RepositoryResolver<TrackingActivity>(ContextConfiguration.TrackingContextName);
 
-                var trackingContext = _contextPool[trackingContextName];
+                IRepositoryContext trackingContext = _contextPool[trackingContextName];
                 IsEntityTrackingEnabled = trackingContext != null;
             }
             catch (Exception)
@@ -66,7 +66,7 @@ namespace Services
             EntityTrackingTransaction? transaction = null;
             if (IsEntityTrackingEnabled)
             {
-                var tenantIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ContextConfiguration.TenantIdClaim)?.Value;
+                string? tenantIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ContextConfiguration.TenantIdClaim)?.Value;
                 int? tenantId = null;
                 if (!string.IsNullOrEmpty(tenantIdClaim))
                     tenantId = int.Parse(tenantIdClaim);

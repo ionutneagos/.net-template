@@ -1,17 +1,25 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Services.Abstractions.Catalog;
 using Services.Abstractions.Shared;
 using Services.Abstractions.Tenant;
+using Services.Shared;
 using System.Security.Principal;
 
 namespace Services.Abstractions
 {
     public interface IServiceManager : IDisposable
     {
+        string EnvironmentName { get; }
         IConfiguration Configuration { get; }
+        IMemoryCache MemoryCache { get; }
         IPrincipal User { get; }
+
+        #region Shared Services
         IDataEncryptionService DataEncryptionService { get; }
+        IMappingService MappingService { get; }
+        #endregion
 
         #region Catalog Services
         ISampleService SampleService { get; }

@@ -18,21 +18,21 @@ namespace Services.Catalog
 
         public async Task<IEnumerable<SampleDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            var items = await repository.GetAll().ToListAsync(cancellationToken);
+            List<Sample> items = await repository.GetAll().ToListAsync(cancellationToken);
 
             return items.Adapt<IEnumerable<SampleDto>>();
         }
 
         public async Task<SampleDto> AddSampleAsync(SampleForCreationDto dto, CancellationToken cancellationToken = default)
         {
-            var sample = dto.Adapt<Sample>();
+            Sample sample = dto.Adapt<Sample>();
             await CreateAsync(sample, cancellationToken);
             return sample.Adapt<SampleDto>();
         }
 
         public async Task UpdateSampleAsync(Guid id, SampleForCreationDto dto, CancellationToken cancellationToken = default)
         {
-            var item = await GetByIdAsync(id);
+            Sample? item = await GetByIdAsync(id);
 
             if (item is null)
                 throw new NotFoundException("Entity not found");

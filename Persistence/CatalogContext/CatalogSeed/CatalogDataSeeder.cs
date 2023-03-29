@@ -1,5 +1,7 @@
-﻿using Domain.Entities.Catalog;
+﻿using Domain.Constants;
+using Domain.Entities.Catalog;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Persistence.CatalogContext.CatalogSeed
 {
@@ -7,18 +9,13 @@ namespace Persistence.CatalogContext.CatalogSeed
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<ApplicationRole> roleManager;
+        private readonly IConfiguration configuration;
 
-        private const string RootId = "root-id";
-        private const string RootEmail = "root@root.ro";
-        private const string RootPassword = "Secret.1";
-
-        private const string RootRole = "Admin";
-        private const string RootRoleId = "role-admin-id";
-        private const string RootRoleTag = "seed-role";
-        public CatalogDataSeeder(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        public CatalogDataSeeder(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
+            this.configuration = configuration;
         }
 
         public async Task SeedAsync()
@@ -28,35 +25,35 @@ namespace Persistence.CatalogContext.CatalogSeed
 
         public async Task CreateDefaulUserAsync()
         {
-            var rootUser = await userManager.FindByEmailAsync(RootEmail);
-            var rootRole = await roleManager.FindByNameAsync(RootRole);
+            string rootEmail = configuration["RootUser:Email"] ?? IdentityConfiguration.RootEmail;
+
+            ApplicationUser? rootUser = await userManager.FindByEmailAsync(rootEmail);
+            ApplicationRole? rootRole = await roleManager.FindByNameAsync(IdentityConfiguration.RootRole);
+
             IdentityResult result = new();
 
             if (rootUser == null)
             {
                 rootUser = new ApplicationUser()
                 {
-                    Email = RootEmail,
-                    UserName = RootEmail,
-                    Id = RootId
+                    Email = rootEmail,
+                    UserName = rootEmail,
+                    Id = IdentityConfiguration.RootId
                 };
-                result = await userManager.CreateAsync(rootUser);
-                if (result.Succeeded)
-                {
-                    result = await userManager.AddPasswordAsync(rootUser, RootPassword);
-                }
+                result = await userManager.CreateAsync(rootUser, configuration["RootUser:Password"] ?? IdentityConfiguration.RootPassword);
             }
+
             if (!result.Errors.Any())
             {
                 if (rootRole == null)
                 {
-                    rootRole = new ApplicationRole { Name = RootRole, Id = RootRoleId, CustomTag = RootRoleTag };
+                    rootRole = new ApplicationRole { Name = IdentityConfiguration.RootRole, Id = IdentityConfiguration.RootRoleId, CustomTag = IdentityConfiguration.RootRoleTag };
                     result = await roleManager.CreateAsync(rootRole);
                 }
-            }
-            if (!result.Errors.Any())
-            {
-                await userManager.AddToRoleAsync(rootUser, rootRole.Name);
+                if (!result.Errors.Any() && !string.IsNullOrEmpty(rootRole.Name))
+                {
+                    await userManager.AddToRoleAsync(rootUser, rootRole.Name);
+                }
             }
         }
     }

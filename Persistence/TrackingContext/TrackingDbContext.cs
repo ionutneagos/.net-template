@@ -22,11 +22,11 @@ namespace Persistence.TrackingContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-           
+
             builder.ApplyConfiguration(new TrackingActionConfiguration());
             builder.ApplyConfiguration(new TrackingActivityConfiguration());
             builder.ApplyConfiguration(new TrackingPropertyChangeConfiguration());
-           
+
             builder.ApplyConfigurationsFromAssembly(typeof(TrackingDbContext).Assembly, x => x.Name == nameof(TrackingDbContext));
         }
 

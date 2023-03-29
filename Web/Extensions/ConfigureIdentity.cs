@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.CatalogContext;
 using System.Text;
-using Web.Provider;
+using Web.Providers;
 
 namespace Web.Extensions
 {
@@ -44,7 +44,7 @@ namespace Web.Extensions
                 {
                     OnMessageReceived = context =>
                     {
-                        var accessToken = context.Request.Query["access_token"];
+                        Microsoft.Extensions.Primitives.StringValues accessToken = context.Request.Query["access_token"];
                         // If the request is custom...
                         return Task.CompletedTask;
                     }

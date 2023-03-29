@@ -19,22 +19,22 @@ namespace Persistence.Common
 
         public static void Rollback(DbContext context)
         {
-            var changedEntries = context.ChangeTracker.Entries().Where(x => x.State != EntityState.Unchanged).ToList();
+            List<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry> changedEntries = context.ChangeTracker.Entries().Where(x => x.State != EntityState.Unchanged).ToList();
 
-            foreach (var entry in changedEntries.Where(x => x.State == EntityState.Modified))
+            foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entry in changedEntries.Where(x => x.State == EntityState.Modified))
             {
                 entry.CurrentValues.SetValues(entry.OriginalValues);
                 entry.State = EntityState.Unchanged;
             }
-            foreach (var entry in changedEntries.Where(x => x.State == EntityState.Detached))
+            foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entry in changedEntries.Where(x => x.State == EntityState.Detached))
             {
                 entry.State = EntityState.Unchanged;
             }
-            foreach (var entry in changedEntries.Where(x => x.State == EntityState.Added))
+            foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entry in changedEntries.Where(x => x.State == EntityState.Added))
             {
                 entry.State = EntityState.Detached;
             }
-            foreach (var entry in changedEntries.Where(x => x.State == EntityState.Deleted))
+            foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entry in changedEntries.Where(x => x.State == EntityState.Deleted))
             {
                 entry.State = EntityState.Unchanged;
             }
@@ -43,13 +43,13 @@ namespace Persistence.Common
         #region Private Methods
         private static void UpdateAuditEntries(DbContext context, dynamic? userId)
         {
-            var changedEntries = context.ChangeTracker.Entries<AuditEntity>()
+            List<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditEntity>> changedEntries = context.ChangeTracker.Entries<AuditEntity>()
                                        .Where(a => a.State != EntityState.Unchanged).ToList();
 
             changedEntries.ForEach(changedEntry =>
             {
-                var entity = changedEntry.Entity;
-                var state = changedEntry.State;
+                AuditEntity entity = changedEntry.Entity;
+                EntityState state = changedEntry.State;
                 switch (state)
                 {
                     case EntityState.Added:

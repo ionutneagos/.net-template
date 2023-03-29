@@ -11,12 +11,10 @@ namespace Domain.Entities.Catalog
         public string? LastName { get; set; }
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime? RefreshTokenExpires { get; set; }
-
         public virtual DateTime CreatedDate { get; set; }
         public virtual string CreatedBy { get; set; } = string.Empty;
         public virtual DateTime? UpdatedDate { get; set; }
         public virtual string UpdatedBy { get; set; } = string.Empty;
-
         public virtual AppTenant? Tenant { get; set; }
     }
 

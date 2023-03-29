@@ -147,11 +147,11 @@ namespace Services.Tracking
 
         private void ProcessPropertyChanges(EntityEntry item, TrackingAction action)
         {
-            var excludedProperties = typeof(AuditEntity).GetProperties().Select(t => t.Name);
-            var changedProperites = item.Properties
+            IEnumerable<string> excludedProperties = typeof(AuditEntity).GetProperties().Select(t => t.Name);
+            List<string> changedProperites = item.Properties
                     .Select(x => x.Metadata.Name).Where(v => !excludedProperties.Contains(v)).ToList();
 
-            foreach (var property in changedProperites)
+            foreach (string property in changedProperites)
             {
                 PropertyEntry propertyEntry = item.Property(property);
                 string currentValue, originalValue = string.Empty;
@@ -201,14 +201,14 @@ namespace Services.Tracking
             Type entityType = GetEntityType(entity);
             if (entityType.GetProperties().Where(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Count() > 0).Count() > 0)
             {
-                foreach (var item in entityType.GetProperties().Where(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Count() > 0))
+                foreach (System.Reflection.PropertyInfo item in entityType.GetProperties().Where(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Count() > 0))
                 {
                     key.Append(string.Format("{0}:{1};", item.Name, item.GetValue(entity, null)));
                 }
             }
             else
             {
-                var keyId = entityType.GetProperties().Where(p => p.Name.ToLower() == "id").FirstOrDefault();
+                System.Reflection.PropertyInfo keyId = entityType.GetProperties().Where(p => p.Name.ToLower() == "id").FirstOrDefault();
                 if (keyId != null)
                 {
                     key.Append(string.Format("{0}:{1};", keyId.Name, keyId.GetValue(entity, null)));

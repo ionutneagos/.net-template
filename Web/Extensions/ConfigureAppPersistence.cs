@@ -9,14 +9,14 @@ namespace Web.Extensions
     {
         public static void AddAppPersistence(this WebApplicationBuilder builder)
         {
-            var catalogConnectionString = builder.Configuration["Database:CatalogConnectionString"];
-            if(!string.IsNullOrEmpty(catalogConnectionString))
+            string? catalogConnectionString = builder.Configuration["Database:CatalogConnectionString"];
+            if (!string.IsNullOrEmpty(catalogConnectionString))
             {
                 builder.Services.AddScoped<CatalogDataSeeder>();
                 builder.Services.AddPersistenceContext(builder.Configuration);
             }
 
-            var trackingConnectionString = builder.Configuration["Database:TrackingConnectionString"];
+            string? trackingConnectionString = builder.Configuration["Database:TrackingConnectionString"];
             if (!string.IsNullOrEmpty(trackingConnectionString))
             {
                 builder.Services.AddTrackingContext(builder.Configuration);
@@ -25,8 +25,8 @@ namespace Web.Extensions
 
         public static async Task InitAppDataAsync(this WebApplication app)
         {
-            var catalogConnectionString = app.Configuration["Database:CatalogConnectionString"];
-            var scopeFactory = app.Services?.GetService<IServiceScopeFactory>();
+            string? catalogConnectionString = app.Configuration["Database:CatalogConnectionString"];
+            IServiceScopeFactory? scopeFactory = app.Services?.GetService<IServiceScopeFactory>();
             if (scopeFactory == null)
                 return;
 
@@ -36,7 +36,7 @@ namespace Web.Extensions
                 await scopeFactory.RunCatalogDataSeederAsync();
             }
 
-            var trackingConnectionString = app.Configuration["Database:TrackingConnectionString"];
+            string? trackingConnectionString = app.Configuration["Database:TrackingConnectionString"];
             if (!string.IsNullOrEmpty(trackingConnectionString))
             {
                 await scopeFactory.MigrateTrackingDbToLatestVersionAsync();

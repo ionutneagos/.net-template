@@ -30,7 +30,7 @@ namespace Persistence.Common
             return DbSet.Where(expression).AsNoTracking();
         }
 
-        public virtual async Task<IEnumerable<T>> Get(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+        public virtual async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includeProperties = "", CancellationToken cancellationToken = default)
         {
             IQueryable<T> query = DbSet;
@@ -38,7 +38,7 @@ namespace Persistence.Common
             if (filter != null)
                 query = query.Where(filter);
 
-            foreach (var includeProperty in includeProperties.Split
+            foreach (string includeProperty in includeProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
@@ -54,20 +54,14 @@ namespace Persistence.Common
             }
         }
 
-        public virtual async Task<T> GetByIdAsync(object id)
+        public virtual async Task<T> GetByIdAsync(object id, CancellationToken cancellationToken = default)
         {
-            var result = await DbSet.FindAsync(id);
-            if (result == null)
-                throw new NotFoundException("Entity not found!");
-            return result;
+            return await DbSet.FindAsync(id);
         }
 
         public virtual async Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default)
         {
-            var result = await DbSet.FindAsync(values, cancellationToken);
-            if (result == null)
-                throw new NotFoundException("Entity not found!");
-            return result;
+           return await DbSet.FindAsync(values, cancellationToken);
         }
 
         public virtual void Create(T entity)

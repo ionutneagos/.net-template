@@ -8,10 +8,10 @@ namespace Domain.Repositories
         IQueryable<T> GetAll();
         IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
 
-        Task<IEnumerable<T>> Get(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
              string includeProperties = "", CancellationToken cancellationToken = default);
 
-        Task<T> GetByIdAsync(object id);
+        Task<T> GetByIdAsync(object id, CancellationToken cancellationToken = default);
         Task<T> GetByIdAsync(object[] values, CancellationToken cancellationToken = default);
 
         void Create(T entity);
