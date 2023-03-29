@@ -1,7 +1,7 @@
 # .NET Union Startup Template with Multitenancy Support
 
 This repositoy contains a project template for rapid development of new projects.  
-The solution contains a RESTful API that follows the Onion architecture with ASP.NET Core and .NET 6. The Onion architecture is also commonly known as the "Clean architecture" or "Ports and adapters", these architectural approaches are just variations of the same theme.
+The solution contains a RESTful API that follows the Onion architecture with ASP.NET Core and .NET 7. The Onion architecture is also commonly known as the "Clean architecture" or "Ports and adapters", these architectural approaches are just variations of the same theme.
 
 There are multiple ways that we can split the onion, but we are going to choose the following approach where weare going to split the architecture into 4 layers and one outer layer  
 
