@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Common;
 using Persistence.TenantContext.Configurations;
+using Persistence.TrackingContext;
 
 #nullable disable
 namespace Persistence.TenantContext
@@ -29,6 +30,7 @@ namespace Persistence.TenantContext
                 {
                     providerOptions.EnableRetryOnFailure();
                     providerOptions.MigrationsAssembly(typeof(TenantDbContext).Assembly.GetName().Name);
+
                 });
                 if (!optionsBuilder.IsConfigured)
                 {
@@ -39,7 +41,8 @@ namespace Persistence.TenantContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new SampleTenantConfiguration());
+            //filter types within the assembly based on context name
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TenantDbContext).Assembly, x => x.Namespace.Contains(ContextName));
         }
 
         public void Commit(dynamic userId)

@@ -43,7 +43,7 @@ namespace Persistence.CatalogContext
             builder.Entity<IdentityRoleClaim<string>>(entity => { entity.ToTable("RoleClaims"); });
             builder.Entity<IdentityUserToken<string>>(entity => { entity.ToTable("UserTokens"); });
 
-            builder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly, x => x.Name == nameof(CatalogDbContext));
+            builder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly, x => x.Namespace.Contains(ContextName));
         }
 
         public void Commit(dynamic userId)

@@ -1,6 +1,7 @@
 ﻿using Domain.Constants;
 using Domain.Entities.Tracking;
 using Microsoft.EntityFrameworkCore;
+using Persistence.CatalogContext;
 using Persistence.Common;
 using Persistence.TrackingContext.Configurations;
 
@@ -27,7 +28,8 @@ namespace Persistence.TrackingContext
             builder.ApplyConfiguration(new TrackingActivityConfiguration());
             builder.ApplyConfiguration(new TrackingPropertyChangeConfiguration());
 
-            builder.ApplyConfigurationsFromAssembly(typeof(TrackingDbContext).Assembly, x => x.Name == nameof(TrackingDbContext));
+            //filter types within the assembly based on context name
+            builder.ApplyConfigurationsFromAssembly(typeof(TrackingDbContext).Assembly, x => x.Namespace.Contains(ContextName));
         }
 
         public void Commit(dynamic userId)

@@ -3,8 +3,8 @@
     public static class IdentityConfiguration
     {
         public const string RootId = "root-id";
-        public const string RootEmail = "root@root.ro";
-        public const string RootPassword = "Secret.1";
+        public const string RootEmail = "root@root.io";
+        public const string RootPassword = "Root@1";
 
         public const string RootRole = "root";
         public const string RootRoleId = "role-id";

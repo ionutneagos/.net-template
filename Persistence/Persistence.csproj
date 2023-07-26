@@ -10,11 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CatalogContext\Migrations\" />
-    <Folder Include="TenantContext\Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="EFCore.AutomaticMigrations" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.4" />
 	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
